@@ -27,7 +27,7 @@ let score = 0;
 // масив для контролю руху блоків
 const bricksSolution = [[],[],[]];
 const bricksPrevious = [[],[],[]];
-const pillarSolution = [];
+let pillarSolution = [];
 let flagMove = false;
 let brickIndexMove = -1;
 
@@ -95,15 +95,19 @@ const drawLevel = () => {
 };
 
 const initPillars = () => {
+  pillarSolution = [];
   for(let i = 0; i<3; i++){
     pillarSolution.push(pillarX + i*2*pillarX+i*pillarWidth);
     drawPillar(pillarSolution[i]);
   }
-  console.log('init',pillarSolution);
 };
 
 const initBricks = () => {
   let n = level*2+1;
+  for(let i=0; i<3; i++){
+    bricksSolution[i] = [];
+    bricksPrevious[i] = [];
+  }
   for(let i=1; i<=n; i++){
     let obj = {
       x:(pillarX-(bricksWidth[level-1][i-1]-pillarWidth)/2),
@@ -159,6 +163,29 @@ const handlerPointerup = () => {
       bricksPrevious[brickIndexMove].shift();
       bricksPrevious[idPillar].unshift(Object.assign({}, newPosition));
       score++;
+
+      if(bricksSolution[0].length === 0 && bricksSolution[1].length === 0 ){
+        if(score === minCountSteps(level)){
+          if(level === 3) {
+            alert('YOU WIN! CONGRATULATION!');
+          } else {
+            alert('YOU WIN! AND NOW THE NEXT LEVEL...');
+            level++;
+          }
+        } else {
+          if(level === 3) {
+            alert('RESULT IS GOOD! CONGRATULATION!');
+          } else {
+            if(confirm('RESULT IS GOOD! AND NOW THE NEXT LEVEL...')){
+              level++;
+            }
+          }
+        }
+        score = 0;
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        initPillars();
+        initBricks();
+      }
     } else {
       bricksSolution[brickIndexMove][0] = Object.assign({}, bricksPrevious[brickIndexMove][0]);
     }
@@ -184,6 +211,7 @@ const draw = () => {
   drawScore();
   drawLevel();
   drawMinSteps();
+
   requestAnimationFrame(draw);
 };
 
